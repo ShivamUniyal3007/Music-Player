@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Music Player</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.9.0/css/all.min.css" integrity="sha512-q3eWabyZPc1XTCmF+8/LuE1ozpg5xxn7iO89yfSOd5/oKvyqLngoNGsx8jq92Y8eXJ/IRxQbEC+FGSYxtk2oiw==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <link rel="stylesheet" href="css/style.css">
+    <!-- <script src="Js/script.js"></script> -->
+
+</head>
+<body>
+    <div class="main_div">
+        <div class="music_container">
+            <h2 id="title">Fir Aur Kya Chahiye</h2>
+            <h3 id="artist">Arijit Singh</h3>
+            <div class="img_container">
+                <img src="images/music-1.jpg">
+            </div>
+            <audio src="music/music-1.mp3"></audio>
+
+            <!-- -----------------Progress bar----------------- -->
+            <div class="progressbar_container" id="progress_container">
+                <div class="progress_duration_meter">
+                    <div id="current_time">0:00</div>
+                    <div id="duration">4.26</div>
+                </div>
+                <div class="progress_div" id="progress_div">
+                    <div class="progress" id="progress"></div>
+                </div>
+            </div>
+            <!-- --------------Controls-------------- -->
+            <div class="music_controls">
+                <i class="fas fa-backward" id="prev" title="Previous"></i>
+                <i class="fas fa-play main_button" id="play" title="Play"></i>
+                <i class="fas fa-forward" id="next" title="Next"></i>
+            </div>
+        </div>
+    </div>
+</body>
+<script>
+    const music = document.querySelector('audio');
+    const play = document.getElementById('play');
+    const img = document.querySelector('img');
+    const artist = document.getElementById('artist');
+    const title = document.getElementById('title');
+    const prev = document.getElementById('prev');
+    const next = document.getElementById('next');
+    
+    let progress = document.getElementById("progress");
+    let total_duration = document.getElementById("duration");
+    let total_currentTime= document.getElementById("current_time");
+    const songs = [
+    {
+        name: "music-1",
+        title: "Fir Aur Kya Chahiye",
+        artist: "Arijit Singh",
+    },
+    {
+        name: "music-2",
+        title: "Kesariya",
+        artist: "Arijit Singh",
+    },
+    {
+        name: "music-3",
+        title: "Tere Vaste",
+        artist: "Varun Jain & Sachin",
+    },
+    ];
+
+    let isPlaying = false;
+    const playMusic= ()=>{
+        isPlaying=true;
+        music.play();
+        play.classList.replace('fa-play', 'fa-pause');
+        img.classList.add('anime');
+    };
+
+    const pauseMusic= ()=>{
+        isPlaying=false;
+        music.pause();
+        play.classList.replace('fa-pause', 'fa-play');
+        img.classList.remove('anime');
+    };
+
+    play.addEventListener('click', ()=>{
+        // if(isPlaying)
+        // {
+        //     pauseMusic();
+        // }
+        // else
+        // {
+        //     playMusic();
+        // }
+
+        //or we can use ternary operator
+        isPlaying? pauseMusic() : playMusic();
+    });
+
+    // changing the music data
+    const loadSong = (songs)=>{
+        title.textContent = songs.title;
+        artist.textContent = songs.artist;
+        music.src = "music/" +songs.name+".mp3";
+        img.src = "images/"+songs.name+".jpg";
+    }; 
+    // loadSong(songs[2]);
+
+    songIndex = 0;
+    const nextSong = ()=>{
+        songIndex = (songIndex+1)%songs.length;
+    loadSong(songs[songIndex]);
+        playMusic();
+    }
+
+    const prevSong = ()=>{
+        songIndex = (songIndex-1 + songs.length)%songs.length;
+    loadSong(songs[songIndex]);
+        playMusic();
+    };
+
+    // progess js work 
+    music.addEventListener('timeupdate', (event)=>{
+        // console.log(event);
+        const {currentTime, duration} = event.srcElement;
+        // console.log(currentTime);
+        // console.log(duration);
+
+        let progress_time = (currentTime/duration)*100;
+        progress.style.width=`${progress_time}%`;
+
+        // music duration update
+        let min_duration = Math.floor(duration/60);
+        let sec_duration = Math.floor(duration%60);
+
+        let tot_duration = `${min_duration}:${sec_duration}`;
+        if(duration)
+        {
+        total_duration.textContent = `${tot_duration}`;
+        }
+        
+        
+        // current duration update
+        
+        let min_currentTime = Math.floor(currentTime/60);
+        let sec_currentTime = Math.floor(currentTime%60);
+
+        if(sec_currentTime<10)
+        {
+            sec_currentTime = `0${sec_currentTime}`
+        }
+        let tot_currentTime = `${min_currentTime}:${sec_currentTime}`;
+        total_currentTime.textContent = `${tot_currentTime}`;
+    });
+    // progress onlick functionality
+    progress_div.addEventListener("click", (event)=>{
+        console.log(event);
+        const {duration} = music;
+        
+        let move_progress= (event.offsetX/event.srcElement.clientWidth)*duration;
+        music.currentTime = move_progress;
+    });
+    
+
+    // if music end play next song
+    music.addEventListener('ended', nextSong);
+
+    next.addEventListener('click', nextSong);
+    prev.addEventListener('click', prevSong);
+
+
+</script>
+</html>
